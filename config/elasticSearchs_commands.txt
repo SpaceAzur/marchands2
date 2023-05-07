@@ -1,0 +1,69 @@
+# Create index with fields
+
+curl -X PUT http://localhost:9200/merchants_index -H 'Content-Type: application/json' -d '{             
+    "settings" : {
+        "number_of_shards": 1
+    },
+    "mappings": {
+
+            "properties": {
+                "siret": {
+                    "type": "long"
+                },
+                "name": {
+                    "type": "text"
+                },
+                "city": {
+                    "type": "text"
+                },
+                "last_modification": {
+                    "type": "date"
+                }
+            }
+    }
+}'
+
+====================================
+# List indices
+
+curl -X GET "http://localhost:9200/_cat/indices/"     
+
+====================================
+# add new document
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html
+
+To automatically generate a document ID, use the POST /<target>/_doc/ request format and omit this parameter.
+
+where <target> is my index
+
+Exemple : 
+
+curl -X POST "http://localhost:9200/merchants_index/_doc/?pretty" -H "Content-Type: application/json" -d '{"siret": 12345678901234,"name" : "john snow","city" : "Winterfell"}'
+
+====================================
+# get all doc in index
+
+Exemple
+
+curl -X GET "localhost:9200/merchants_index/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+    "query" : {
+        "match_all" : {}
+    }
+}'
+
+====================================
+# get doc by field value (matching)
+
+Exemple 
+
+curl -X GET "localhost:9200/merchants_index/_search?pretty" -H "Content-Type: application/json" -d '{
+  "_source": true,
+   "stored_fields": ["*"],
+  "query": {
+    "match": {
+      "name": "john snow"
+    }
+  }
+}'
