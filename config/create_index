@@ -1,0 +1,22 @@
+curl -X PUT http://localhost:9200/merchants_index -H 'Content-Type: application/json' -d '{             
+    "settings" : {
+        "number_of_shards": 1
+    },
+    "mappings": {
+
+            "properties": {
+                "siret": {
+                    "type": "long"
+                },
+                "name": {
+                    "type": "text"
+                },
+                "city": {
+                    "type": "text"
+                },
+                "last_modification": {
+                    "type": "date"
+                }
+            }
+    }
+}'
