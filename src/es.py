@@ -1,16 +1,15 @@
-import config
-from elasticsearch import Elasticsearch, helpers
+from config import config, populate
+from elasticsearch import Elasticsearch, helpers, exceptions
 from typing import Dict
-import warnings
+import warnings, uuid, logging
 warnings.filterwarnings(action='ignore')
 
-
 INDEX_NAME = config.INDEX_NAME
-ESKNN_HOST = config.ESKNN_HOST
+ES_HOST = config.ES_HOST
 
 
 es = Elasticsearch(
-    hosts=[ESKNN_HOST]
+    hosts=[ES_HOST]
 )
 
 
@@ -19,7 +18,22 @@ class ESKNN():
     '''
 
     def __init__(self) -> None:
-        pass
+        try:
+            info = isinstance(es.indices.get_mapping(index=INDEX_NAME), dict)
+        except (TypeError, exceptions.NotFoundError) as e:
+            self.create_index()
+
+    def populate_index(self):
+        for character in config.POPULATION:
+            try:
+                response = es.index(
+                    index=INDEX_NAME,
+                    id=uuid.uuid4(),
+                    body=character
+                )
+            except exceptions.ElasticsearchException as e:
+                logging.info("could not insert default doc")
+
 
     def create_index(self) -> None:
         ''' Create new index\n
@@ -41,6 +55,9 @@ class ESKNN():
                 return 1
         except:
             return 0
+        
+        self.populate_index()
+
 
     def search_document(self, query, field_name) -> Dict:
         ''' Search a index\n
